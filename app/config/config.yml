@@ -4,17 +4,18 @@ imports:
 
 framework:
     #esi:             ~
-    translator:      { fallback: ru }
+    translator:      { fallback: %locale% }
     secret:          %secret%
-    charset:         UTF-8
-    router:          { resource: "%kernel.root_dir%/config/routing.yml" }
+    router:
+        resource: "%kernel.root_dir%/config/routing.yml"
+        strict_requirements: %kernel.debug%
     form:            true
     csrf_protection: true
     validation:      { enable_annotations: true }
     templating:      { engines: ['twig'] } #assets_version: SomeVersionScheme
-    session:
-        default_locale: %locale%
-        auto_start:     true
+    default_locale:  %locale%
+    trust_proxy_headers: false # Whether or not the Request object should trust proxy headers (X_FORWARDED_FOR/HTTP_CLIENT_IP)
+    session:         ~
 
 # Twig Configuration
 twig:
@@ -25,7 +26,7 @@ twig:
 
 # Assetic Configuration
 assetic:
-#    debug:          %kernel.debug%
+    debug:          %kernel.debug%
     use_controller: false
     filters:
         yui_css:
@@ -66,10 +67,7 @@ swiftmailer:
     host:      %mailer_host%
     username:  %mailer_user%
     password:  %mailer_password%
-
-jms_security_extra:
-    secure_controllers:  true
-    secure_all_services: false
+#    spool:     { type: memory }
 
 # KnpMenuBundle
 knp_menu:
@@ -102,5 +100,57 @@ fos_user:
 
 stfalcon_payment:
     interkassa:
-        shop_id: "24C1AF18-3D1A-44FC-9B32-210336A4B231"
+        shop_id: "24C1AF18-3D1A-44FC-9C32-210336A4B231"
         secret: %interkassa_secret%
+    discount: 0.2
+
+sonata_block:
+    default_contexts: [cms]
+    blocks:
+        sonata.admin.block.admin_list:
+            contexts:   [admin]
+
+        #sonata.admin_doctrine_orm.block.audit:
+        #    contexts:   [admin]
+
+        sonata.block.service.text:
+        sonata.block.service.action:
+        sonata.block.service.rss:
+
+        # Some specific block from the SonataMediaBundle
+        #sonata.media.block.media:
+        #sonata.media.block.gallery:
+        #sonata.media.block.feature_media:
+
+sonata_admin:
+    templates:
+        layout: "::admin.html.twig"
+
+services:
+     gelf.publisher:
+         class: Gelf\MessagePublisher
+         arguments: [%graylog.hostname%, %graylog.port%]
+     monolog.gelf_handler:
+         class: Monolog\Handler\GelfHandler
+         arguments: [@gelf.publisher]
+     monolog.processor.added_host:
+             class: Monolog\Processor\WebProcessor
+             tags:
+                 - { name: monolog.processor, method: __invoke }
+
+vich_uploader:
+     db_driver: orm
+     mappings:
+          sponsor_image:
+              uri_prefix: /uploads/sponsors
+              upload_destination: %kernel.root_dir%/../web/uploads/sponsors
+          speaker_photo:
+              uri_prefix: /uploads/speakers
+              upload_destination: %kernel.root_dir%/../web/uploads/speakers
+              #all images in upload folder could be deleted
+              delete_on_update: true
+          event_image:
+              uri_prefix: /uploads/events
+              upload_destination: %kernel.root_dir%/../web/uploads/events
+
+ornicar_gravatar: ~

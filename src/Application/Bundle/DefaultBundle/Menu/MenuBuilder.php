@@ -4,24 +4,34 @@ namespace Application\Bundle\DefaultBundle\Menu;
 
 use Knp\Menu\FactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Router;
 
+/**
+ * MenuBuilder Class
+ */
 class MenuBuilder
 {
+    /**
+     * @var \Knp\Menu\FactoryInterface
+     */
     private $factory;
+
+    private $em;
 
     /**
      * @param \Knp\Menu\FactoryInterface $factory
      */
-    public function __construct(FactoryInterface $factory)
+    public function __construct(FactoryInterface $factory, $em)
     {
         $this->factory = $factory;
+        $this->em = $em;
     }
 
     /**
      * Main page top menu
      *
      * @param Request $request
+     *
+     * @return \Knp\Menu\MenuItem
      */
     public function createMainMenu(Request $request)
     {
@@ -32,8 +42,8 @@ class MenuBuilder
 
         $menu->addChild('О Frameworks Days', array('route' => 'page_show', 'routeParameters' => array('slug' => 'about')));
         $menu->addChild('События', array('route' => 'events'));
-        $menu->addChild('Контактная информация', array('route' => 'page_show', 'routeParameters' => array('slug' => 'contacts')));
-        $menu->addChild('Спонсоры и партнеры', array('route' => 'page_show', 'routeParameters' => array('slug' => 'partners')));
+        $menu->addChild('Контакты', array('route' => 'page_show', 'routeParameters' => array('slug' => 'contacts')));
+        $menu->addChild('Партнеры', array('route' => 'partners_page'));
 
         return $menu;
     }
@@ -42,6 +52,8 @@ class MenuBuilder
      * Event page top menu
      *
      * @param Request $request
+     *
+     * @return \Knp\Menu\MenuItem
      */
     public function createEventMainMenu(Request $request)
     {
@@ -56,22 +68,34 @@ class MenuBuilder
     /**
      * Event page submenu
      *
-     * @param Request $request
+     * @param Request                                   $request Request
+     * @param \Stfalcon\Bundle\EventBundle\Entity\Event $event   Event
+     *
+     * @return \Knp\Menu\MenuItem
      */
     public function createEventSubMenu(Request $request, $event)
     {
+        $ticketRepository = $this->em->getRepository('StfalconEventBundle:Ticket');
+
+        $participants = $ticketRepository->findTicketsByEventGroupByUser($event);
+
         $menu = $this->factory->createItem('root');
 
         $menu->setCurrentUri($request->getRequestUri());
 
         $menu->addChild("О событии", array('route' => 'event_show', 'routeParameters' => array('event_slug' => $event->getSlug())));
 
+        /** @var $event \Stfalcon\Bundle\EventBundle\Entity\Event */
         if ($event->getSpeakers()) {
             $menu->addChild("Докладчики", array('route' => 'event_speakers', 'routeParameters' => array('event_slug' => $event->getSlug())));
         }
 
+        if (count($participants) > 0) {
+            $menu->addChild("Участники", array('route' => 'event_participants', 'routeParameters' => array('event_slug' => $event->getSlug())));
+        }
+
         // ссылки на страницы ивента
-        foreach($event->getPages() as $page) {
+        foreach ($event->getPages() as $page) {
             if ($page->isShowInMenu()) {
                 $menu->addChild($page->getTitle(), array('route' => 'event_page_show',
                         'routeParameters' => array('event_slug' => $event->getSlug(), 'page_slug' => $page->getSlug())));

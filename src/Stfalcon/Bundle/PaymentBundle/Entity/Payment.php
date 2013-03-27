@@ -14,9 +14,8 @@ use Application\Bundle\UserBundle\Entity\User;
  */
 class Payment
 {
-
     const STATUS_PENDING = 'pending';
-    const STATUS_PAID = 'paid';
+    const STATUS_PAID    = 'paid';
 
     /**
      * @var integer $id
@@ -27,23 +26,33 @@ class Payment
      */
     private $id;
 
-
     /**
      * Кто оплатил. Т.е. провел транзакцию.
      *
      * @var User $user
      *
      * @ORM\ManyToOne(targetEntity="Application\Bundle\UserBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", onUpdate="CASCADE")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $user;
 
     /**
-     * @var decimal $amount
+     * Сумма для оплаты
+     *
+     * @var float $amount
      *
      * @ORM\Column(name="amount", type="decimal", precision=10, scale=2)
      */
     private $amount;
+
+    /**
+     * Сумма без учета скидки
+     *
+     * @var float $amountWithoutDiscount
+     *
+     * @ORM\Column(name="amount_without_discount", type="decimal", precision=10, scale=2)
+     */
+    private $amountWithoutDiscount;
 
     /**
      * @var string $status
@@ -51,9 +60,9 @@ class Payment
      * @ORM\Column(name="status", type="string")
      */
     private $status;
-    
+
     /**
-     * @var gate $gate
+     * @var string $gate
      *
      * @ORM\Column()
      */
@@ -76,13 +85,23 @@ class Payment
     private $updatedAt;
 
     /**
+     * Указываем или платеж учитывал скидку
+     *
+     * @var bool
+     *
+     * @ORM\Column(name="has_discount", type="boolean")
+     */
+    private $hasDiscount = false;
+
+    /**
      * Constructor. Set default status to new payment.
      *
      * @return void
      */
-    public function __construct(User $user, $amount) {
+    public function __construct(User $user, $amount, $hasDiscount = false) {
         $this->setUser($user);
         $this->setAmount($amount);
+        $this->setHasDiscount($hasDiscount);
         $this->setStatus(self::STATUS_PENDING);
     }
 
@@ -99,7 +118,7 @@ class Payment
     /**
      * Set amount
      *
-     * @param decimal $amount
+     * @param float $amount
      */
     public function setAmount($amount)
     {
@@ -109,7 +128,7 @@ class Payment
     /**
      * Get amount
      *
-     * @return decimal
+     * @return float
      */
     public function getAmount()
     {
@@ -176,15 +195,64 @@ class Payment
     {
         return ($this->getStatus() == self::STATUS_PAID);
     }
-    
-    public function getGate() {
+
+    public function getGate()
+    {
         return $this->gate;
     }
 
-    public function setGate($gate) {
+    public function setGate($gate)
+    {
         $this->gate = $gate;
     }
 
+    /**
+     * Set hasDiscount
+     *
+     * @param boolean $hasDiscount
+     */
+    public function setHasDiscount($hasDiscount)
+    {
+        $this->hasDiscount = $hasDiscount;
+    }
 
+    /**
+     * Get hasDiscount
+     *
+     * @return boolean
+     */
+    public function getHasDiscount()
+    {
+        return $this->hasDiscount;
+    }
 
+    /**
+     * Set amountWithoutDiscount
+     *
+     * @param float $amountWithoutDiscount
+     */
+    public function setAmountWithoutDiscount($amountWithoutDiscount)
+    {
+        $this->amountWithoutDiscount = $amountWithoutDiscount;
+    }
+
+    /**
+     * Get amountWithoutDiscount
+     *
+     * @return float
+     */
+    public function getAmountWithoutDiscount()
+    {
+        return $this->amountWithoutDiscount;
+    }
+
+    /**
+     * Get status of payment
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->status;
+    }
 }

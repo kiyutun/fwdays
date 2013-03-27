@@ -1,3 +1,6 @@
+"Bad credentials": Неверная электронная почта или пароль
+"User account is disabled.": Не активирован аккаунт
+
 # Security
 security.login.username: "Электронная почта:"
 fos_user_profile_form_email: "Электронная почта:"
@@ -9,6 +12,8 @@ fos_user_registration_form_comment: "Комментарий, пожелания,
 fos_user_registration_form_subscribe: "Я согласен получать важные новости на e-mail:"
 
 fos_user_profile_form_fullname: "Фамилия и имя:"
+fos_user_profile_form_country: "Страна:"
+fos_user_profile_form_city: "Город:"
 fos_user_profile_form_company: "Компания:"
 fos_user_profile_form_post: "Должность:"
 fos_user_profile_form_comment: "Комментарий, пожелания, доп. информация:"
@@ -16,8 +21,8 @@ fos_user_profile_form_subscribe: "Я согласен получать важн�
 
 profile.show.fullname: "Фамилия и имя"
 
-registration.check_email: На e-mail %email% выслано письмо с ссылкой для подвтерждения регистрации.
+registration.check_email: На электронную почту %email% выслано письмо с ссылкой для подтверждения регистрации.
 
-resetting.request.invalid_username: Пользователь с e-mail "%username%" не существует.
-resetting.request.username: "Ваш e-mail:"
-resetting.check_email: На e-mail "%email%" отправлено письмо с ссылкой для сброса пароля.
+resetting.request.invalid_username: Пользователь с электронной почтой "%username%" не существует.
+resetting.request.username: "Ваша электронная почта:"
+resetting.check_email: На электронную почту "%email%" отправлено письмо с ссылкой для сброса пароля.

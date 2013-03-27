@@ -16,10 +16,15 @@ StfalconNewsBundle:
 StfalconPageBundle:
     resource: "@StfalconPageBundle/Controller/"
     type:     annotation
-    prefix:   /
+    prefix:   /page
 
 ApplicationDefaultBundle:
     resource: "@ApplicationDefaultBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+StfalconSponsorBundle:
+    resource: "@StfalconSponsorBundle/Controller/"
     type:     annotation
     prefix:   /
 

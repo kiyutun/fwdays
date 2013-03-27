@@ -13,25 +13,25 @@ use Stfalcon\Bundle\PaymentBundle\Entity\Payment;
 class InterkassaController extends Controller
 {
 
-//     * @Route("/payments/interkassa/pay", name="payments_pay")
     /**
      * @Template()
      * @Secure(roles="ROLE_USER")
      * @return array
      */
-    public function payAction($user, $payment)
+    public function payAction($event, $user, $payment)
     {
         $config = $this->container->getParameter('stfalcon_payment.config');
-        $em = $this->getDoctrine()->getEntityManager();
 
         $data = array(
             'ik_shop_id' => $config['interkassa']['shop_id'],
-//            'ik_payment_amount' => $payment->getAmount(),
-//            'ik_payment_id' => $payment->getId(),
-            'ik_payment_desc' => 'Оплата участия в конференции Zend Framework Day. Плательщик ' . $user->getFullname() . ' (#' . $user->getId() . ').',
+            'ik_payment_desc' => 'Оплата участия в конференции ' . $event->getName() . '. Плательщик ' . $user->getFullname() . ' (#' . $user->getId() . ')',
             'ik_sign_hash' => $this->_getSignHash($payment->getId(), $payment->getAmount()));
 
-        return array('data' => $data, 'payment' => $payment);
+        return array(
+            'data' => $data,
+            'event' => $event,
+            'payment' => $payment
+        );
     }
 
     /**
@@ -44,14 +44,14 @@ class InterkassaController extends Controller
     {
 //        $params = $this->getRequest()->request->all();
         $params = $_POST;
-        $payment = $this->getDoctrine()->getEntityManager()
+        $payment = $this->getDoctrine()
                      ->getRepository('StfalconPaymentBundle:Payment')
                      ->findOneBy(array('id' => $params['ik_payment_id']));
 
         if ($payment->getStatus() == Payment::STATUS_PENDING && $this->_checkPaymentStatus($params)) {
             $payment->setStatus(Payment::STATUS_PAID);
             /** @var $em \Doctrine\ORM\EntityManager */
-            $em = $this->getDoctrine()->getEntityManager();
+            $em = $this->getDoctrine()->getManager();
             $em->persist($payment);
             $em->flush();
             $message = 'Проверка контрольной подписи данных о платеже успешно пройдена!';

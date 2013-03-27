@@ -9,27 +9,19 @@
         <div class="wrap">
             <div class="logo">
                 <a class="custom" href="{{ path('event_show', {'event_slug': event.slug } )}}" title="{{ event.name }}">
-                    <img src="{{ event.logo }}" width="120" height="129" alt="" />
+                    <img src="{{ vich_uploader_asset(event, 'file') }}" width="131" height="129" alt="" />
                 </a>
             </div><!-- div.logo -->
             <div class="event-head-text">
-                {{ event.date|localizeddate('full', 'none') }}
-                <br>
-                {{ event.place }}, {{ event.city }}
+                {% include "StfalconEventBundle:Event:_event_place_block.html.twig" with { 'event': event } %}
+
+                {% render controller("StfalconEventBundle:Ticket:status", { 'event' : event }) %}
             </div>
         </div>
     </header><!-- #header-->
 
     <nav class="event-nav">
         <div class="wrap">
-            {% if event.receivePayments %}
-                <div class="reg-button-hold">
-                    <a class="reg-button" href="{{ path('event_takePart', {'event_slug': event.slug }) }}">
-                        Принять участие
-                    </a>
-                </div>
-            {% endif %}
-
             {{ knp_menu_render('event_sub') }}
         </div>
     </nav>
@@ -38,18 +30,23 @@
 {% block sidebar_left %}
     {% block event_speakers_widget %}
         <h2>Докладчики</h2>
-        {% render "StfalconEventBundle:Speaker:widget" with { 'event': event, 'count': 3 } %}
+        {% render controller("StfalconEventBundle:Speaker:widget", { 'event': event, 'count': 3 }) %}
+
+        {% if event.active == true %}
+            <h2>Участники</h2>
+            {% render controller("StfalconEventBundle:Participant:widget", { 'event': event, 'count': 3 }) %}
+        {% endif %}
     {% endblock %}
 
     {% block event_news_widget %}
         <h2>Новости</h2>
-        {% render "StfalconEventBundle:News:widget" with { 'event': event, 'count': 7 } %}
+        {% render controller("StfalconEventBundle:News:widget", { 'event': event, 'count': 7 }) %}
     {% endblock %}
 
 {% endblock %}
 
 {% block sidebar_right %}
     {% block event_sponsors_widget %}
-        {% render "StfalconSponsorBundle:Sponsor:widget" with { 'event': event } %}
+        {% render controller("StfalconSponsorBundle:Sponsor:widget", { 'event': event }) %}
     {% endblock %}
 {% endblock %}

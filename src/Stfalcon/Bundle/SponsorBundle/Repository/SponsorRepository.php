@@ -3,7 +3,7 @@
 namespace Stfalcon\Bundle\SponsorBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use Stfalcon\Bundle\EventBundle\Entity\Event AS Event;
+use Stfalcon\Bundle\EventBundle\Entity\Event as Event;
 
 /**
  * SponsorRepository
@@ -23,16 +23,41 @@ class SponsorRepository extends EntityRepository
      */
     public function getSponsorsOfEvent(Event $event)
     {
-        $qb = $this->getEntityManager()
-                ->createQueryBuilder()
-                ->add('select', 's')
-                ->add('from', 'StfalconSponsorBundle:Sponsor s')
-                ->join('s.events', 'e')
-                ->add('where', 'e.id = ?1')
-                ->add('orderBy', 's.name ASC')
-                ->setParameter(1, $event->getId());
-        $query = $qb->getQuery();
+        return  $this->getEntityManager()
+            ->createQuery('
+                SELECT
+                    s as sponsor,
+                    c.name as category_name
+                FROM
+                    StfalconSponsorBundle:Sponsor s
+                    JOIN s.sponsorEvents se
+                    JOIN se.event e
+                    JOIN se.category c
+                WHERE
+                    e.id = :eventId
+                ORDER BY
+                    c.sortOrder DESC
+            ')
+            ->setParameter('eventId', $event->getId())
+            ->getResult();
+    }
 
-        return $query->getResult();
+    public function getCheckedSponsorsOfActiveEvents()
+    {
+        return $this->getEntityManager()
+            ->createQuery('
+                SELECT
+                    s
+                FROM
+                    StfalconSponsorBundle:Sponsor s
+                    JOIN s.sponsorEvents se
+                    JOIN se.event e
+                WHERE
+                    e.active = true
+                    AND s.onMain = true
+                ORDER BY
+                    s.sortOrder DESC
+            ')
+            ->getResult();
     }
 }

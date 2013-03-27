@@ -6,10 +6,14 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+
+use Stfalcon\Bundle\SponsorBundle\Entity\EventSponsor;
 
 /**
  * Stfalcon\Bundle\SponsorBundle\Entity\Sponsor
  *
+ * @Vich\Uploadable
  * @ORM\Table(name="sponsors")
  * @ORM\Entity(repositoryClass="Stfalcon\Bundle\SponsorBundle\Repository\SponsorRepository")
  */
@@ -22,21 +26,21 @@ class Sponsor
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $slug
      *
      * @ORM\Column(name="slug", type="string", length=255)
      */
-    private $slug;
+    protected $slug;
 
     /**
      * @var string $name
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string $site
@@ -44,40 +48,45 @@ class Sponsor
      * @ORM\Column(name="site", type="string", nullable=true, length=255)
      * @Assert\Url
      */
-    private $site;
+    protected $site;
 
     /**
      * @var string $logo
      *
      * @ORM\Column(name="logo", type="string", nullable=true, length=255)
      */
-    private $logo;
+    protected $logo;
+
+    /**
+     * @var int $sortOrder
+     *
+     * @ORM\Column(name="sort_order", type="integer", nullable=false)
+     */
+    protected $sortOrder = 1;
 
     /**
      * @var resource $file
      *
      * @Assert\File(maxSize="6000000")
      * @Assert\Image
+     *
+     * @Vich\UploadableField(mapping="sponsor_image", fileNameProperty="logo")
      */
-    private $file;
+    protected $file;
 
     /**
-     * @var text $about
+     * @var string $about
      *
      * @ORM\Column(name="about", type="text", nullable=true)
      */
-    private $about;
+    protected $about;
 
     /**
-     * @var \Doctrine\Common\Collections\ArrayCollection
-     *
-     * @ORM\ManyToMany(targetEntity="Stfalcon\Bundle\EventBundle\Entity\Event")
-     * @ORM\JoinTable(name="event__events_sponsors",
-     *      joinColumns={@ORM\JoinColumn(name="sponsor_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@ORM\JoinColumn(name="event_id", referencedColumnName="id")}
-     *      )
+     * @ORM\OneToMany(targetEntity="Stfalcon\Bundle\SponsorBundle\Entity\EventSponsor",
+     *     mappedBy="sponsor", cascade={"persist", "remove"}, orphanRemoval=true
+     * )
      */
-    private $events;
+    protected $sponsorEvents;
 
     /**
      * @var \DateTime $created
@@ -95,12 +104,20 @@ class Sponsor
      */
     protected $updatedAt;
 
+
+    /**
+     * @var boolean onMain
+     *
+     * @ORM\Column(name="on_main", type="boolean")
+     */
+    protected $onMain = false;
+
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->events = new ArrayCollection();
+        $this->sponsorEvents = new ArrayCollection();
     }
 
     /**
@@ -153,8 +170,19 @@ class Sponsor
         return $this->name;
     }
 
+
     /**
-     * Set logo
+     * Get logo filename
+     *
+     * @return string
+     */
+    public function getLogo()
+    {
+        return $this->logo;
+    }
+
+    /**
+     * Set logo filename
      *
      * @param string $logo
      */
@@ -164,13 +192,23 @@ class Sponsor
     }
 
     /**
-     * Get logo
+     * Set sortOrder
      *
-     * @return string
+     * @param int $sortOrder
      */
-    public function getLogo()
+    public function setSortOrder($sortOrder)
     {
-        return $this->logo;
+        $this->sortOrder = $sortOrder;
+    }
+
+    /**
+     * Get sortOrder
+     *
+     * @return int
+     */
+    public function getSortOrder()
+    {
+        return $this->sortOrder;
     }
 
     /**
@@ -193,11 +231,17 @@ class Sponsor
         return $this->site;
     }
 
+    /**
+     * @return resource
+     */
     public function getFile()
     {
         return $this->file;
     }
 
+    /**
+     * @param $file
+     */
     public function setFile($file)
     {
         $this->file = $file;
@@ -223,30 +267,38 @@ class Sponsor
         return $this->about;
     }
 
+
     /**
-     * Get event
-     *
-     * @return array
+     * @param EventSponsor $sponsorEvent
      */
-    public function getEvents()
+    public function addSponsorEvents(EventSponsor $sponsorEvent)
     {
-        return $this->events;
+        $this->sponsorEvents[] = $sponsorEvent;
     }
 
     /**
-     * Set event
-     *
-     * @param array $events
+     * @param $sponsorEvents
      */
-    public function setEvents($events)
+    public function setSponsorEvents($sponsorEvents)
     {
-        $this->events = $events;
+        foreach($sponsorEvents as $sponsorEvent){
+            $sponsorEvent->setSponsor($this);
+        }
+        $this->sponsorEvents = $sponsorEvents;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getSponsorEvents()
+    {
+        return $this->sponsorEvents;
     }
 
     /**
      * Get createdAt
      *
-     * @return /Datetime createdAt
+     * @return \Datetime createdAt
      */
     public function getCreatedAt()
     {
@@ -256,7 +308,7 @@ class Sponsor
     /**
      * Set createdAt
      *
-     * @param /Datetime $createdAt createdAt
+     * @param \Datetime $createdAt createdAt
      */
     public function setCreatedAt($createdAt)
     {
@@ -266,7 +318,7 @@ class Sponsor
     /**
      * Get updatedAt
      *
-     * @return /Datetime updatedAt
+     * @return \Datetime updatedAt
      */
     public function getUpdatedAt()
     {
@@ -276,7 +328,7 @@ class Sponsor
     /**
      * Set updatedAt
      *
-     * @param /Datetime $updatedAt updatedAt
+     * @param \Datetime $updatedAt updatedAt
      */
     public function setUpdatedAt($updatedAt)
     {
@@ -291,5 +343,22 @@ class Sponsor
     public function __toString()
     {
         return $this->name;
+    }
+
+
+    /**
+     * @param boolean $onMain
+     */
+    public function setOnMain($onMain)
+    {
+        $this->onMain = $onMain;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getOnMain()
+    {
+        return $this->onMain;
     }
 }

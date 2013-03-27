@@ -29,7 +29,7 @@ class Ticket
      * @var Event
      *
      * @ORM\ManyToOne(targetEntity="Event")
-     * @ORM\JoinColumn(name="event_id", referencedColumnName="id", onDelete="CASCADE", onUpdate="CASCADE")
+     * @ORM\JoinColumn(name="event_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $event;
 
@@ -39,7 +39,7 @@ class Ticket
      * @var User
      *
      * @ORM\ManyToOne(targetEntity="Application\Bundle\UserBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE", onUpdate="CASCADE")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $user;
 
@@ -47,7 +47,7 @@ class Ticket
      * @var Stfalcon\Bundle\PaymentBundle\Entity\Payment
      *
      * @ORM\ManyToOne(targetEntity="Stfalcon\Bundle\PaymentBundle\Entity\Payment")
-     * @ORM\JoinColumn(name="payment_id", referencedColumnName="id", onDelete="CASCADE", onUpdate="CASCADE")
+     * @ORM\JoinColumn(name="payment_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $payment;
 
@@ -66,6 +66,12 @@ class Ticket
      * @Gedmo\Timestampable(on="update")
      */
     private $updatedAt;
+
+    /**
+     * @var boolean $used
+     * @ORM\Column(name="used", type="boolean")
+     */
+    private $used = false;
 
     public function __construct(Event $event, User $user) {
         $this->setEvent($event);
@@ -148,9 +154,41 @@ class Ticket
         $this->updatedAt = $updatedAt;
     }
 
+    /**
+     * Checking if ticket is "paid"
+     *
+     * @return bool
+     */
     public function isPaid()
     {
         return (bool) ($this->getPayment() != null && $this->getPayment()->isPaid());
+    }
+
+    /**
+     * Mark ticket as "used"
+     *
+     * @param bool $used
+     */
+    public function setUsed($used){
+        $this->used = $used;
+    }
+
+    /**
+     * Checking if ticket is "used"
+     *
+     * @return bool
+     */
+    public function isUsed(){
+        return $this->used;
+    }
+
+    /**
+     * Generate unique md5 hash for ticket
+     * @return string
+     */
+    public function getHash()
+    {
+        return md5($this->getId() . $this->getCreatedAt()->format('Y-m-d H:i:s'));
     }
 
 }

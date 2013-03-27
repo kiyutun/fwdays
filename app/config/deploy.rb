@@ -1,6 +1,5 @@
 set :application, "frameworksdays"
 set :domain,      "#{application}.com"
-#set :deploy_to,   "~/#{domain}"
 set :deploy_to,   "/var/www/#{domain}"
 set :app_path,    "app"
 
@@ -13,15 +12,14 @@ role :db,         domain, :primary => true       # This is where Rails migration
 
 default_run_options[:pty] = true
 
-set  :keep_releases,  3
-set  :user,       "fwdays-com"
-set  :use_sudo,   false
+set :keep_releases, 3
+set :user,  "fwdays-com"
+set :use_sudo,  false
 
-#set  :update_vendors, true
-set :use_composer, true
+set :use_composer,  true
+#set :copy_vendors,  true
+#set :update_vendors,    true
 
-set :deploy_via, :rsync_with_remote_cache
-
-set :shared_files,	["app/config/parameters.ini"]
-set :shared_children,	[app_path + "/logs", web_path + "/uploads", "vendor"]
-set :dump_assetic_assets, true
+set :shared_files,  ["app/config/parameters.ini"]
+set :shared_children,   [app_path + "/logs", web_path + "/uploads"]
+set :dump_assetic_assets,   true

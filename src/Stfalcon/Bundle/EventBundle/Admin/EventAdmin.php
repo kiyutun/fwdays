@@ -18,6 +18,7 @@ class EventAdmin extends Admin
             ->add('name')
             ->add('active')
             ->add('receivePayments')
+            ->add('cost')
         ;
     }
 
@@ -32,44 +33,17 @@ class EventAdmin extends Admin
                 ->add('date')
                 ->add('description')
                 ->add('about')
-                ->add('file', 'file', array('required' => false))
+                // @todo rm array options https://github.com/dustin10/VichUploaderBundle/issues/27 and https://github.com/symfony/symfony/pull/5028
+                ->add('file', 'file', array(
+                        'required' => false,
+                        'data_class' => 'Symfony\Component\HttpFoundation\File\File',
+                        'property_path' => 'file'
+                ))
                 ->add('active', null, array('required' => false))
                 ->add('receivePayments', null, array('required' => false))
+                ->add('cost', null, array('required' => true))
             ->end()
         ;
-    }
-
-    /**
-     * Saves an uploaded logo of event
-     *
-     * @param Event $event
-     *
-     * @return void
-     */
-    public function uploadLogo($event)
-    {
-        if (null === $event->getFile()) {
-            return;
-        }
-
-        $uploadDir     = '/uploads/events';
-        $pathToUploads = realpath($this->getConfigurationPool()->getContainer()->get('kernel')->getRootDir() . '/../web' . $uploadDir);
-        $newFileName   = $event->getSlug() . '.' . pathinfo($event->getFile()->getClientOriginalName(), PATHINFO_EXTENSION);
-
-        $event->getFile()->move($pathToUploads, $newFileName);
-        $event->setLogo($uploadDir . '/' . $newFileName);
-
-        $event->setFile(null);
-    }
-
-    public function prePersist($event)
-    {
-        $this->uploadLogo($event);
-    }
-
-    public function preUpdate($event)
-    {
-        $this->uploadLogo($event);
     }
 
     public function getBatchActions()

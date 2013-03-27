@@ -1,0 +1,15 @@
+language: php
+php:
+  - 5.3
+  - 5.4
+before_script:
+  - mysql -e 'create database fwdays_com_testing;'
+  - curl -s https://getcomposer.org/installer | php -- --quiet 
+  - php composer.phar install
+  - app/console --env=test doctrine:schema:create
+script:
+  - phpunit -c app/
+  - bin/run-all-features
+notifications:
+  email:
+      - stepan.tanasiychuk@gmail.com

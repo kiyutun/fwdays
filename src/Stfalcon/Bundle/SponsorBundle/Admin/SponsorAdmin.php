@@ -8,9 +8,14 @@ use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 
+/**
+ * SponsorAdmin Class
+ */
 class SponsorAdmin extends Admin
 {
-
+    /**
+     * @param \Sonata\AdminBundle\Datagrid\ListMapper $listMapper
+     */
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper
@@ -18,9 +23,13 @@ class SponsorAdmin extends Admin
             ->add('name')
             ->add('site')
             ->add('about')
-        ;
+            ->add('onMain')
+            ->add('sortOrder');
     }
 
+    /**
+     * @param \Sonata\AdminBundle\Form\FormMapper $formMapper
+     */
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
@@ -29,46 +38,33 @@ class SponsorAdmin extends Admin
                 ->add('slug')
                 ->add('site')
                 ->add('about')
-                ->add('file', 'file', array('required' => false))
+                // @todo rm array options https://github.com/dustin10/VichUploaderBundle/issues/27 and https://github.com/symfony/symfony/pull/5028
+                ->add('file', 'file', array(
+                      'required' => false,
+                      'data_class' => 'Symfony\Component\HttpFoundation\File\File',
+                      'property_path' => 'file')
+                      )
+                ->add('sortOrder', null, array(
+                    'attr' => array(
+                        'min' => 1
+                    )
+                ))
+                ->add('onMain', null, array('required' => false))
             ->with('Events')
-                ->add('events', 'sonata_type_model', array('required' => false), array('edit'     => 'standart', 'expanded' => true, 'multiple' => true))
-            ->end()
-        ;
+            ->add('sponsorEvents', 'sonata_type_collection',
+                array(
+                    'label' => 'Events',
+                    'by_reference' => false
+                ), array(
+                    'edit' => 'inline',
+                    'inline' => 'table',
+                ))
+            ->end();
     }
 
     /**
-     * Saves an uploaded logo of sponsor
-     *
-     * @param Stfalcon\Bundle\SponsorBundle\Entity\Sponsor $sponsor
-     *
-     * @return void
+     * @return array|void
      */
-    public function uploadLogo($sponsor)
-    {
-        if (null === $sponsor->getFile()) {
-            return;
-        }
-
-        $uploadDir     = '/uploads/sponsors';
-        $pathToUploads = realpath($this->getConfigurationPool()->getContainer()->get('kernel')->getRootDir() . '/../web' . $uploadDir);
-        $newFileName   = $sponsor->getSlug() . '.' . pathinfo($sponsor->getFile()->getClientOriginalName(), PATHINFO_EXTENSION);
-
-        $sponsor->getFile()->move($pathToUploads, $newFileName);
-        $sponsor->setLogo($uploadDir . '/' . $newFileName);
-
-        $sponsor->setFile(null);
-    }
-
-    public function prePersist($sponsor)
-    {
-        $this->uploadLogo($sponsor);
-    }
-
-    public function preUpdate($sponsor)
-    {
-        $this->uploadLogo($sponsor);
-    }
-
     public function getBatchActions()
     {
         $actions = array();

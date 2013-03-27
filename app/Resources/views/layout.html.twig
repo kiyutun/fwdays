@@ -11,9 +11,11 @@
         <!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
         <title>{% block title %}Frameworks Days{% endblock %}</title>
 
+        {% block metatags %}{% endblock %}
+
         <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
 
-        {% stylesheets 'css/style.css' filter='yui_css' output="tmp/css/*.css" %}
+        {% stylesheets 'css/style.css' filter='?yui_css' output="tmp/css/*.css" %}
             <link rel="stylesheet" type="text/css" media="screen, projection" href="{{ asset_url }}" />
             <!--[if IE 7]><link rel="stylesheet" href="/css/style_ie7.css" type="text/css" media="screen, projection" /><![endif]-->
         {% endstylesheets %}
@@ -29,7 +31,7 @@
                     {% if event is defined %}
                         {{ knp_menu_render('event_main') }}
                     {% else %}
-                        {{ knp_menu_render('main') }}
+                        {{ knp_menu_render('main', {'class': 'nav'}) }}
                     {% endif %}
 
                     <div class="user-nav">
@@ -64,18 +66,10 @@
                 </header><!-- #header-->
             {% endblock %}
 
-            {#<div class="events-switches">
-                <div class="wrap">
-                    <ul>
-                        <li class="active"><a href="# ">Zend Framework Day</a></li>
-                        <li><a href="# ">PHP Frameworks Day</a></li>
-                        <li class="past-events"><a href="# ">Прошедшие</a></li>
-                    </ul>
-                </div>
-            </div>#}
+            <!-- nav for events switcher -->
+            {% block switch %}{% endblock %}
 
             <section id="middle">
-
                 <div id="container">
                     <div id="content">
                         {% block content %}{% endblock %}
@@ -90,7 +84,6 @@
 
                 <aside id="side-right">
                     {% block sidebar_right %}
-                        {% include "::_sponsors.html.twig" %}
                     {% endblock %}
                 </aside><!-- #side-right -->
 
@@ -102,7 +95,7 @@
             <div class="wrap">
                 <div class="copyright">&#169; 2011 Frameworks Days</div>
                 <address>Электронная почта: <a href="mailto:orgs@fwdays.com">orgs@fwdays.com</a></address>
-                <div class="created-by">Сделано в <a class="stfalcon" href="http://stfalcon.com">stfalcon-studio</a></div>
+                <div class="created-by">Сделано в веб-студии <a class="stfalcon" href="http://stfalcon.com"><span class="icon"></span>stfalcon.com</a></div>
             </div>
         </footer><!-- #footer -->
 

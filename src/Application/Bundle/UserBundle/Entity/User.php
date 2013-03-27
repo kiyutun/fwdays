@@ -5,8 +5,11 @@ namespace Application\Bundle\UserBundle\Entity;
 use FOS\UserBundle\Entity\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * User Class
+ *
  * @ORM\Entity
  * @ORM\Table(name="users")
  */
@@ -22,7 +25,8 @@ class User extends BaseUser
     /**
      * @var string $fullname
      *
-     * @ORM\Column(name="fullname", type="string", length=255, nullable=true)
+     * @ORM\Column(name="fullname", type="string", length=255, nullable=false)
+     * @Assert\NotBlank()
      */
     protected $fullname;
 
@@ -39,6 +43,20 @@ class User extends BaseUser
      * @ORM\Column(name="post", type="string", length=255, nullable=true)
      */
     protected $post;
+
+    /**
+     * @var string $country
+     *
+     * @ORM\Column(name="country", type="string", length=255, nullable=true)
+     */
+    protected $country;
+
+    /**
+     * @var string $city
+     *
+     * @ORM\Column(name="city", type="string", length=255, nullable=true)
+     */
+    protected $city;
 
     /**
      * @var boolean $subscribe
@@ -62,8 +80,8 @@ class User extends BaseUser
      */
     public function setEmail($email)
     {
-             parent::setEmail($email);
-             $this->setUsername($email);
+        parent::setEmail($email);
+        $this->setUsername($email);
     }
 
     /**
@@ -71,7 +89,8 @@ class User extends BaseUser
      *
      * @return string
      */
-    public function getFullname() {
+    public function getFullname()
+    {
         return $this->fullname;
     }
 
@@ -80,8 +99,9 @@ class User extends BaseUser
      *
      * @param string $fullname
      */
-    public function setFullname($fullname) {
-        $this->fullname = $fullname;
+    public function setFullname($fullname)
+    {
+        $this->fullname = strip_tags($fullname);
     }
 
     /**
@@ -89,7 +109,8 @@ class User extends BaseUser
      *
      * @return string
      */
-    public function getCompany() {
+    public function getCompany()
+    {
         return $this->company;
     }
 
@@ -98,8 +119,9 @@ class User extends BaseUser
      *
      * @param string $company
      */
-    public function setCompany($company) {
-        $this->company = $company;
+    public function setCompany($company)
+    {
+        $this->company = strip_tags($company);
     }
 
     /**
@@ -107,7 +129,8 @@ class User extends BaseUser
      *
      * @return string
      */
-    public function getPost() {
+    public function getPost()
+    {
         return $this->post;
     }
 
@@ -116,8 +139,9 @@ class User extends BaseUser
      *
      * @param string $post
      */
-    public function setPost($post) {
-        $this->post = $post;
+    public function setPost($post)
+    {
+        $this->post = strip_tags($post);
     }
 
     /**
@@ -125,27 +149,78 @@ class User extends BaseUser
      *
      * @return string
      */
-    public function isSubscribe() {
+    public function isSubscribe()
+    {
         return $this->subscribe;
     }
 
     /**
      * Set subscribe
      *
-     * @param type $subscribe
+     * @param boolean $subscribe
      */
-    public function setSubscribe($subscribe) {
+    public function setSubscribe($subscribe)
+    {
         $this->subscribe = $subscribe;
     }
 
+    /**
+     * Get createdAt
+     *
+     * @return \DateTime
+     */
     public function getCreatedAt()
     {
         return $this->createdAt;
     }
 
+    /**
+     * Set createdAt
+     *
+     * @param \DateTime $createdAt
+     */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
     }
 
+    /**
+     * Set city
+     *
+     * @param string $city
+     */
+    public function setCity($city)
+    {
+        $this->city = strip_tags($city);
+    }
+
+    /**
+     * Get city
+     *
+     * @return string
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * Set country
+     *
+     * @param string $country
+     */
+    public function setCountry($country)
+    {
+        $this->country = strip_tags($country);
+    }
+
+    /**
+     * Get country
+     *
+     * @return string
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
 }

@@ -49,7 +49,7 @@ class MailAdmin extends Admin
         }
 
         $container = $this->getConfigurationPool()->getContainer();
-        $em = $container->get('doctrine')->getEntityManager();
+        $em = $container->get('doctrine')->getManager();
 
         if ($mail->getEvent()) {
             // @todo сделать в репо метод для выборки пользователей, которые отметили ивент
@@ -89,7 +89,7 @@ class MailAdmin extends Admin
                 // @todo refact
                 ->setFrom('orgs@fwdays.com', 'Frameworks Days')
                 ->setTo($user->getEmail())
-                ->setBody($text);
+                ->setBody($text, 'text/html');
 
             // @todo каждый вызов отнимает память
             $mailer->send($message);

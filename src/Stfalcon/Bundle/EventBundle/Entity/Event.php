@@ -6,10 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * Stfalcon\Bundle\EventBundle\Entity\Event
  *
+ * @Vich\Uploadable
  * @ORM\Table(name="event__events")
  * @ORM\Entity(repositoryClass="Stfalcon\Bundle\EventBundle\Repository\EventRepository")
  */
@@ -22,7 +24,7 @@ class Event
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string $name
@@ -30,7 +32,7 @@ class Event
      * @ORM\Column(type="string")
      * @Assert\NotBlank()
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string $slug
@@ -38,96 +40,98 @@ class Event
      * @ORM\Column(type="string")
      * @Assert\NotBlank()
      */
-    private $slug;
+    protected $slug;
 
     /**
      * @var string $city
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private $city;
+    protected $city;
 
     /**
      * @var string $place
      *
      * @ORM\Column(type="string", nullable=true)
      */
-    private $place;
+    protected $place;
 
     /**
      * @var \DateTime $date
      *
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $date;
+    protected $date;
 
     /**
-     * @var text $description
+     * @var string $description
      *
      * @ORM\Column(type="text")
      * @Assert\NotBlank()
      */
-    private $description;
+    protected $description;
 
     /**
-     * @var text $about
+     * @var string $about
      *
      * @ORM\Column(type="text", nullable=true)
      */
-    private $about;
+    protected $about;
 
     /**
      * @var string $logo
      *
      * @ORM\Column(type="string")
      */
-    private $logo;
+    protected $logo;
 
     /**
      * @var boolean $active
      *
      * @ORM\Column(type="boolean")
      */
-    private $active = true;
+    protected $active = true;
 
     /**
      * @var boolean $receivePayments
      *
      * @ORM\Column(name="receive_payments", type="boolean")
      */
-    private $receivePayments = false;
+    protected $receivePayments = false;
 
     /**
      * @ORM\OneToMany(targetEntity="Page", mappedBy="event")
+     * @ORM\OrderBy({"sortOrder" = "DESC"})
      */
-    private $pages;
+    protected $pages;
 
     /**
-     * @ORM\OneToMany(targetEntity="News", mappedBy="event")
-     * @ORM\OrderBy({"created_at" = "DESC"})
-     */
-    private $news;
-
-    /**
-     * @var Doctrine\Common\Collections\ArrayCollection
+     * @var \Doctrine\Common\Collections\ArrayCollection
      *
      * @ORM\ManyToMany(targetEntity="Speaker", mappedBy="events")
      */
-    private $speakers;
+    protected $speakers;
 
     /**
      * @Assert\File(maxSize="6000000")
      * @Assert\Image
+     * @Vich\UploadableField(mapping="event_image", fileNameProperty="logo")
      */
-    private $file;
+    protected $file;
+
+    /**
+     * @var float $cost
+     *
+     * @ORM\Column(name="cost", type="decimal", precision=10, scale=2, nullable=false)
+     */
+    protected $cost;
 
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->speakers = new ArrayCollection();
-        $this->sponsors = new ArrayCollection();
+        $this->speakers      = new ArrayCollection();
     }
 
     /**
@@ -143,7 +147,7 @@ class Event
     /**
      * Set event name
      *
-     * @param type $name
+     * @param string $name
      */
     public function setName($name)
     {
@@ -300,11 +304,17 @@ class Event
         return $this->active;
     }
 
+    /**
+     * @param $receivePayments
+     */
     public function setReceivePayments($receivePayments)
     {
         $this->receivePayments = $receivePayments;
     }
 
+    /**
+     * @return bool
+     */
     public function getReceivePayments()
     {
         return $this->receivePayments;
@@ -318,16 +328,6 @@ class Event
     public function getSpeakers()
     {
         return $this->speakers;
-    }
-
-    /**
-     * Set path to logo
-     *
-     * @param string $logo
-     */
-    public function setLogo($logo)
-    {
-        $this->logo = $logo;
     }
 
     /**
@@ -370,12 +370,6 @@ class Event
         return $this->file;
     }
 
-    public function getAmount()
-    {
-        // !!! @todo: get from database
-        return 150;
-    }
-
     /**
      * @todo remove this method (and try remove property)
      * Get event pages
@@ -388,13 +382,23 @@ class Event
     }
 
     /**
-     * @todo remove this method (and try remove property)
-     * Get event news
+     * Set cost
      *
-     * @return ArrayCollection
+     * @param float $cost
      */
-    public function getNews()
+    public function setCost($cost)
     {
-        return $this->news;
+        $this->cost = $cost;
     }
+
+    /**
+     * Get cost
+     *
+     * @return float
+     */
+    public function getCost()
+    {
+        return $this->cost;
+    }
+
 }

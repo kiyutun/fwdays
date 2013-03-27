@@ -9,6 +9,7 @@
         <parameter key="stfalcon_event.admin.event.entity">Stfalcon\Bundle\EventBundle\Entity\Event</parameter>
         <parameter key="stfalcon_event.admin.event.controller">SonataAdminBundle:CRUD</parameter>
 
+
         <parameter key="stfalcon_event.admin.speaker.class">Stfalcon\Bundle\EventBundle\Admin\SpeakerAdmin</parameter>
         <parameter key="stfalcon_event.admin.speaker.entity">Stfalcon\Bundle\EventBundle\Entity\Speaker</parameter>
         <parameter key="stfalcon_event.admin.speaker.controller">SonataAdminBundle:CRUD</parameter>
@@ -28,6 +29,12 @@
         <parameter key="stfalcon_event.admin.mails.class">Stfalcon\Bundle\EventBundle\Admin\MailAdmin</parameter>
         <parameter key="stfalcon_event.admin.mails.entity">Stfalcon\Bundle\EventBundle\Entity\Mail</parameter>
         <parameter key="stfalcon_event.admin.mails.controller">SonataAdminBundle:CRUD</parameter>
+
+        <parameter key="stfalcon_event.admin.tickets.class">Stfalcon\Bundle\EventBundle\Admin\TicketAdmin</parameter>
+        <parameter key="stfalcon_event.admin.tickets.entity">Stfalcon\Bundle\EventBundle\Entity\Ticket</parameter>
+        <parameter key="stfalcon_event.admin.tickets.controller">SonataAdminBundle:CRUD</parameter>
+
+        <parameter key="stfalcon_event.qr_code.class">Endroid\QrCode\QrCode</parameter>
     </parameters>
 
     <services>
@@ -73,6 +80,16 @@
             <argument />
             <argument>%stfalcon_event.admin.mails.entity%</argument>
             <argument>%stfalcon_event.admin.mails.controller%</argument>
+        </service>
+
+        <service id="stfalcon_event.admin.tickets" class="%stfalcon_event.admin.tickets.class%">
+            <tag name="sonata.admin" manager_type="orm" group="События" label="Билеты"/>
+            <argument />
+            <argument>%stfalcon_event.admin.tickets.entity%</argument>
+            <argument>%stfalcon_event.admin.tickets.controller%</argument>
+        </service>
+
+        <service id="stfalcon_event.qr_code" class="%stfalcon_event.qr_code.class%">
         </service>
     </services>
 

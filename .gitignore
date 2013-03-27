@@ -1,9 +1,12 @@
-web/bundles/
-app/bootstrap.php.cache
-app/cache/*
-app/logs/*
-vendor/
-.rsync_cache/
-web/tmp/*
-web/uploads/events/*
-web/uploads/speakers/*
+# Symfony
+/app/bootstrap.php.cache
+/app/logs/*
+/app/cache/*
+/vendor/
+/web/bundles/*
+/composer.phar
+/composer.lock
+
+# Application
+/web/tmp/*
+/web/uploads/*

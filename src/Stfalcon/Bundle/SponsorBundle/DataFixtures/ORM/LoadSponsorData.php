@@ -2,55 +2,75 @@
 
 namespace Stfalcon\Bundle\SponsorBundle\DataFixtures\ORM;
 
-use Doctrine\Common\DataFixtures\AbstractFixture;
-use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
+use Doctrine\Common\DataFixtures\AbstractFixture,
+    Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 use Stfalcon\Bundle\SponsorBundle\Entity\Sponsor;
 
 /**
  * Load Sponsor fixtures to database
  */
-class LoadSponsorData extends AbstractFixture implements OrderedFixtureInterface
+class LoadSponsorData extends AbstractFixture
 {
-
-    public function load($manager)
+    /**
+     * @param \Doctrine\Common\Persistence\ObjectManager $manager
+     */
+    public function load(ObjectManager $manager)
     {
-        $sponsor1 = new Sponsor();
-        $sponsor1->setName('ePochta');
-        $sponsor1->setSlug('epochta');
-        $sponsor1->setSite('http://www.epochta.ru/');
-        $sponsor1->setLogo('/images/partners/epochta.png');
-        $sponsor1->setAbout('About ePochta');
-        $sponsor1->setEvents(array($manager->merge($this->getReference('event-zfday'))));
-        $manager->persist($sponsor1);
+        // Magento
+        $magento = new Sponsor();
+        $magento->setName('Magento');
+        $magento->setSlug('magento');
+        $magento->setSite('http://ua.magento.com/');
+        $magento->setFile($this->_generateUploadedFile('magento.png'));
+        $magento->setAbout('The Magento eCommerce platform serves more than 125,000 merchants worldwide and is supported by a global ecosystem of solution partners and third-party developers.');
+        $magento->setSortOrder(10);
+        $magento->setOnMain(true);
+        $manager->persist($magento);
+        $this->addReference('sponsor-magento', $magento);
 
-        $sponsor2 = new Sponsor();
-        $sponsor2->setName('Magento');
-        $sponsor2->setSlug('magento');
-        $sponsor2->setSite('http://ua.magento.com/');
-        $sponsor2->setLogo('/images/partners/magento/small_logo.png');
-        $sponsor2->setAbout('Magento – це компанія №1 в світі в сегменті Open Source рішень для електронної комерції.');
-        $sponsor2->setEvents(array($manager->merge($this->getReference('event-zfday'))));
-        $manager->persist($sponsor2);
+        // oDesk
+        $odesk = new Sponsor();
+        $odesk->setName('oDesk');
+        $odesk->setSlug('odesk');
+        $odesk->setSite('http://odesk.com/');
+        $odesk->setFile($this->_generateUploadedFile('odesk.jpg'));
+        $odesk->setAbout('oDesk is a global marketplace that helps employers hire, manage, and pay remote freelancers or teams. It\'s free to post a job and hire from over 1 million top professionals.');
+        $odesk->setSortOrder(20);
+        $odesk->setOnMain(true);
+        $manager->persist($odesk);
+        $this->addReference('sponsor-odesk', $odesk);
 
-        $sponsor3 = new Sponsor();
-        $sponsor3->setName('Symfony Camp');
-        $sponsor3->setSlug('symfony-camp');
-        $sponsor3->setSite('http://2011.symfonycamp.org.ua/');
-        $sponsor3->setLogo('/images/partners/symfonycamp.png');
-        $sponsor3->setAbout('About Symfony Camp');
-        $sponsor3->setEvents(array($manager->merge($this->getReference('event-zfday'))));
-        $manager->persist($sponsor3);
+        // ePochta
+        $epochta = new Sponsor();
+        $epochta->setName('ePochta');
+        $epochta->setSlug('epochta');
+        $epochta->setSite('http://www.epochta.ru/');
+        $epochta->setFile($this->_generateUploadedFile('epochta.png'));
+        $epochta->setOnMain(false);
+        $epochta->setSortOrder(15);
+        $manager->persist($epochta);
+        $this->addReference('sponsor-epochta', $epochta);
 
         $manager->flush();
     }
 
     /**
-     * Return the order in which fixtures will be loaded
+     * Generate UploadedFile object from local file. For VichUploader
      *
-     * @return integer The order in which fixtures will be loaded
+     * @param string $filename
+     *
+     * @return UploadedFile
      */
-    public function getOrder()
+    private function _generateUploadedFile($filename)
     {
-        return 3;
+        $fullPath = realpath(dirname(__FILE__) . '/images/' . $filename);
+        $tmpFile = tempnam(sys_get_temp_dir(), 'sponsor');
+        copy($fullPath, $tmpFile);
+
+        return new UploadedFile($tmpFile,
+            $filename, null, null, null, true
+        );
     }
 }
